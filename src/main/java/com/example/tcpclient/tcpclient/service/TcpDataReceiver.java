@@ -14,7 +14,7 @@ import lombok.extern.slf4j.Slf4j;
 @MessageEndpoint
 public class TcpDataReceiver {
 
-  @ServiceActivator(inputChannel = "responseChannel")
+  @ServiceActivator(inputChannel = "messageChannel")
   public void replyHandler(Message message) {
 
     String data = new String((byte[]) message.getPayload(), StandardCharsets.UTF_8);
