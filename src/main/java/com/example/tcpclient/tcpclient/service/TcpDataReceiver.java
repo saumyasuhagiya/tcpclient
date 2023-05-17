@@ -14,29 +14,18 @@ import lombok.extern.slf4j.Slf4j;
 @MessageEndpoint
 public class TcpDataReceiver {
 
-  @ServiceActivator(inputChannel = "primaryMessageChannel")
-  public void replyHandler(Message message) {
+    @ServiceActivator(inputChannel = "primaryMessageChannel")
+    public void replyHandler(Message message) {
 
-    String data = new String((byte[]) message.getPayload(), StandardCharsets.UTF_8);
+        String data = new String((byte[]) message.getPayload(), StandardCharsets.UTF_8);
 
-    log.info(
-        "PRIMARY: ConnectionId: {}, IP Address: {}, IP Hostname: {}, IP Port: {}",
-        message.getHeaders().get("ip_connectionId"),
-        message.getHeaders().get("ip_address"),
-        message.getHeaders().get("ip_hostname"), message.getHeaders().get("ip_tcp_remotePort"));
-    log.info("{}", data);
-  }
-
-  @ServiceActivator(inputChannel = "secondaryMessageChannel")
-  public void replyHandlerSecondary(Message message) {
-
-    String data = new String((byte[]) message.getPayload(), StandardCharsets.UTF_8);
-
-    log.info(
-            "SECONDARY: ConnectionId: {}, IP Address: {}, IP Hostname: {}, IP Port: {}",
-            message.getHeaders().get("ip_connectionId"),
-            message.getHeaders().get("ip_address"),
-            message.getHeaders().get("ip_hostname"), message.getHeaders().get("ip_tcp_remotePort"));
-    log.info("{}", data);
-  }
+        if (message.getHeaders().containsKey("ip_tcp_remotePort")) {
+            if (message.getHeaders().get("ip_tcp_remotePort").toString().equals("8888")) {
+                log.info("Sending data from primary server to subscribers");
+            } else if (message.getHeaders().get("ip_tcp_remotePort").toString().equals("9999")) {
+                log.info("Sending data from secondary server to subscribers");
+            }
+        }
+        log.info("{}", data);
+    }
 }

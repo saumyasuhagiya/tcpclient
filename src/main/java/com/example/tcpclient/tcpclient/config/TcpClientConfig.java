@@ -1,5 +1,7 @@
 package com.example.tcpclient.tcpclient.config;
 
+import com.example.tcpclient.tcpclient.helper.ActiveConnectionMonitor;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationEvent;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.context.annotation.Bean;
@@ -26,9 +28,16 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class TcpClientConfig{
 
+  @Autowired
+  ActiveConnectionMonitor activeConnectionMonitor;
+
+
+  DirectChannel primaryMessageChannel;
   @Bean
   public MessageChannel primaryMessageChannel() {
-    return new DirectChannel();
+    primaryMessageChannel = new DirectChannel();
+    primaryMessageChannel.addInterceptor(activeConnectionMonitor);
+    return primaryMessageChannel;
   }
 
   @Bean
@@ -47,7 +56,7 @@ public class TcpClientConfig{
   public TcpReceivingChannelAdapter inPrimary(AbstractClientConnectionFactory primaryFCCF) {
     TcpReceivingChannelAdapter adapter = new TcpReceivingChannelAdapter();
     adapter.setConnectionFactory(primaryFCCF);
-    adapter.setOutputChannel(primaryMessageChannel());
+    adapter.setOutputChannel(primaryMessageChannel);
     //adapter.setClientMode(true);
     return adapter;
   }
@@ -65,7 +74,7 @@ public class TcpClientConfig{
   public TcpReceivingChannelAdapter inSecondary(AbstractClientConnectionFactory secondaryFCCF) {
     TcpReceivingChannelAdapter adapter = new TcpReceivingChannelAdapter();
     adapter.setConnectionFactory(secondaryFCCF);
-    adapter.setOutputChannel(primaryMessageChannel());
+    adapter.setOutputChannel(primaryMessageChannel);
     //adapter.setClientMode(true);
     return adapter;
   }
