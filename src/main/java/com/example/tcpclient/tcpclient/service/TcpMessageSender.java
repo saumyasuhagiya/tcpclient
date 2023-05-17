@@ -17,6 +17,7 @@ public class TcpMessageSender implements ApplicationListener<ContextRefreshedEve
 
     @Autowired
     TcpSendingMessageHandler tcpSendingMessageHandler;
+    
     private final MessageChannel tcpClientChannel;
 
     public TcpMessageSender(@Qualifier("messageChannel") MessageChannel messageChannel) {
