@@ -58,10 +58,7 @@ public class TcpClientConfig {
     TcpSendingMessageHandler tcpSendingMessageHandler = new TcpSendingMessageHandler();
     tcpSendingMessageHandler.setConnectionFactory(connectionFactory);
     tcpSendingMessageHandler.setLoggingEnabled(true);
-    connectionFactory.registerSender(tcpSendingMessageHandler);
-    tcpSendingMessageHandler.handleMessage(
-        MessageBuilder.withPayload("initial-msg-with-auth-details")
-            .build());
+
     return tcpSendingMessageHandler;
   }
 }
