@@ -3,6 +3,8 @@ package com.example.tcpclient.tcpclient.config;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.example.tcpclient.tcpclient.service.TcpConnectionListner;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.integration.ip.tcp.connection.AbstractClientConnectionFactory;
@@ -19,6 +21,9 @@ public class TcpConnectionConfig {
   private String tcpServerAddress = "localhost";
 
   private int tcpServerPort = 8888;
+
+  @Autowired
+  TcpConnectionListner tcpConnectionListner;
 
   @Bean
   public AbstractClientConnectionFactory clientConnectionFactory() {
@@ -39,6 +44,7 @@ public class TcpConnectionConfig {
     tcpNetClientConnectionFactory.setSingleUse(false);
     tcpNetClientConnectionFactory.setSoTcpNoDelay(true);
     tcpNetClientConnectionFactory.setDeserializer(TcpCodecs.lengthHeader1());
+    tcpNetClientConnectionFactory.setApplicationEventPublisher(tcpConnectionListner);
     return tcpNetClientConnectionFactory;
   }
 
