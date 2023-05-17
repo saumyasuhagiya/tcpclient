@@ -48,12 +48,7 @@ public class TcpClientConfig {
 
   @Bean
   @ServiceActivator(inputChannel = "messageChannel")
-  public TcpSendingMessageHandler out(AbstractClientConnectionFactory connectionFactory)
-      throws InterruptedException {
-    log.info(
-        "Connecting to : {}:{}",
-        connectionFactory.getConnection().getHostAddress(),
-        connectionFactory.getConnection().getSocketInfo().getLocalPort());
+  public TcpSendingMessageHandler out(AbstractClientConnectionFactory connectionFactory) {
     TcpSendingMessageHandler tcpSendingMessageHandler = new TcpSendingMessageHandler();
     tcpSendingMessageHandler.setConnectionFactory(connectionFactory);
     tcpSendingMessageHandler.setLoggingEnabled(true);

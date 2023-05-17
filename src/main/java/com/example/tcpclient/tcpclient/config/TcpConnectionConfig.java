@@ -46,7 +46,6 @@ public class TcpConnectionConfig {
       List<AbstractClientConnectionFactory> tcpNetClientConnectionFactoryList) {
     var failoverClientConnectionFactory =
         new FailoverClientConnectionFactory(tcpNetClientConnectionFactoryList);
-    failoverClientConnectionFactory.start();
     return failoverClientConnectionFactory;
   }
 }
