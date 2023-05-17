@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import lombok.SneakyThrows;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationEvent;
 import org.springframework.context.ApplicationEventPublisher;
@@ -20,13 +21,17 @@ import org.springframework.messaging.MessageChannel;
 
 @Configuration
 @EnableIntegration
+@Slf4j
 public class TcpConnectionConfig implements ApplicationEventPublisher {
 
     //This is for testing purpose only. Actual server resides on external server.
     private String tcpServerAddress = "localhost";
 
     @Autowired
-    MessageChannel messageChannel;
+    MessageChannel primaryMessageChannel;
+
+    @Autowired
+    MessageChannel secondaryMessageChannel;
 
     private int tcpServerPort = 8888;
     private String tcpServerFailoverAddress = "localhost";
@@ -34,12 +39,23 @@ public class TcpConnectionConfig implements ApplicationEventPublisher {
     private int tcpServerFailoverPort = 9999;
 
     @Bean
-    public AbstractClientConnectionFactory clientConnectionFactory() {
+    public AbstractClientConnectionFactory secondaryFCCF() {
         List<AbstractClientConnectionFactory> tcpNetClientConnectionFactoryList = new ArrayList<>();
         tcpNetClientConnectionFactoryList.add(
                 getTcpNetClientConnectionFactory(tcpServerFailoverAddress, tcpServerFailoverPort));
         tcpNetClientConnectionFactoryList.add(
                 getTcpNetClientConnectionFactory(tcpServerAddress, tcpServerPort));
+
+        return getFailOverClientConnection(tcpNetClientConnectionFactoryList);
+    }
+
+    @Bean
+    public AbstractClientConnectionFactory primaryFCCF() {
+        List<AbstractClientConnectionFactory> tcpNetClientConnectionFactoryList = new ArrayList<>();
+        tcpNetClientConnectionFactoryList.add(
+                getTcpNetClientConnectionFactory(tcpServerAddress, tcpServerPort));
+        tcpNetClientConnectionFactoryList.add(
+                getTcpNetClientConnectionFactory(tcpServerFailoverAddress, tcpServerFailoverPort));
 
         return getFailOverClientConnection(tcpNetClientConnectionFactoryList);
     }
@@ -65,34 +81,34 @@ public class TcpConnectionConfig implements ApplicationEventPublisher {
 
     @EventListener
     public void listen(TcpConnectionOpenEvent event) {
-        System.out.println("Event Received");
-        System.out.println(event);
+        log.info("Event Received");
     }
 
     @SneakyThrows
     @Override
     public void publishEvent(ApplicationEvent event) {
-        System.out.println("appEvent: " + event.getClass().getName());
+        log.info("appEvent: " + event.getClass().getName());
         if (event.getClass().getName().equals(TcpConnectionOpenEvent.class.getCanonicalName())) {
-            System.out.println("Connection Opened");
+            log.info("Connection Opened");
 
         }
         if (event.getClass().getName().equals(TcpConnectionCloseEvent.class.getCanonicalName())) {
-            System.out.println("Connection Closed");
+            log.info("Connection Closed");
             Thread.sleep(1000);
             String messagePayload = "Hello, TCP server!";
             Message<byte[]> message = MessageBuilder.withPayload(messagePayload.getBytes()).build();
-            messageChannel.send(message);
-            System.out.println("Message sent to TCP server: " + messagePayload);
+            primaryMessageChannel.send(message);
+            secondaryMessageChannel.send(message);
+            log.info("Message sent to TCP server: " + messagePayload);
         }
         if (event.getClass().getName().equals(TcpConnectionExceptionEvent.class.getCanonicalName())) {
-            System.out.println("Connection Exception");
+            log.info("Connection Exception");
         }
         ApplicationEventPublisher.super.publishEvent(event);
     }
 
     @Override
     public void publishEvent(Object event) {
-        System.out.println("appEvent: " + event.getClass().getName());
+        log.info("appEvent: " + event.getClass().getName());
     }
 }

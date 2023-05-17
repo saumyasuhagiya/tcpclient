@@ -27,7 +27,12 @@ import lombok.extern.slf4j.Slf4j;
 public class TcpClientConfig{
 
   @Bean
-  public MessageChannel messageChannel() {
+  public MessageChannel primaryMessageChannel() {
+    return new DirectChannel();
+  }
+
+  @Bean
+  public MessageChannel secondaryMessageChannel() {
     return new DirectChannel();
   }
 
@@ -39,47 +44,42 @@ public class TcpClientConfig{
   }
 
   @Bean
-  public TcpReceivingChannelAdapter in(AbstractClientConnectionFactory connectionFactory) {
+  public TcpReceivingChannelAdapter inPrimary(AbstractClientConnectionFactory primaryFCCF) {
     TcpReceivingChannelAdapter adapter = new TcpReceivingChannelAdapter();
-    adapter.setConnectionFactory(connectionFactory);
-    adapter.setOutputChannel(messageChannel());
+    adapter.setConnectionFactory(primaryFCCF);
+    adapter.setOutputChannel(primaryMessageChannel());
     //adapter.setClientMode(true);
     return adapter;
   }
 
   @Bean
-  @ServiceActivator(inputChannel = "messageChannel")
-  public TcpSendingMessageHandler out(AbstractClientConnectionFactory connectionFactory) {
+  @ServiceActivator(inputChannel = "primaryMessageChannel")
+  public TcpSendingMessageHandler outPrimary(AbstractClientConnectionFactory primaryFCCF) {
     TcpSendingMessageHandler tcpSendingMessageHandler = new TcpSendingMessageHandler();
-    tcpSendingMessageHandler.setConnectionFactory(connectionFactory);
+    tcpSendingMessageHandler.setConnectionFactory(primaryFCCF);
     tcpSendingMessageHandler.setLoggingEnabled(true);
     return tcpSendingMessageHandler;
   }
 
+  @Bean
+  public TcpReceivingChannelAdapter inSecondary(AbstractClientConnectionFactory secondaryFCCF) {
+    TcpReceivingChannelAdapter adapter = new TcpReceivingChannelAdapter();
+    adapter.setConnectionFactory(secondaryFCCF);
+    adapter.setOutputChannel(primaryMessageChannel());
+    //adapter.setClientMode(true);
+    return adapter;
+  }
+
+  @Bean
+  @ServiceActivator(inputChannel = "secondaryMessageChannel")
+  public TcpSendingMessageHandler outSecondary(AbstractClientConnectionFactory secondaryFCCF) {
+    TcpSendingMessageHandler tcpSendingMessageHandler = new TcpSendingMessageHandler();
+    tcpSendingMessageHandler.setConnectionFactory(secondaryFCCF);
+    tcpSendingMessageHandler.setLoggingEnabled(true);
+    return tcpSendingMessageHandler;
+  }
   @EventListener
   public void connectionEvent(TcpConnectionEvent event) {
     log.info("Event received.. {}", event);
   }
-
-  @Bean
-  public ApplicationEventListeningMessageProducer eventsAdapter(
-          MessageChannel messageChannel, MessageChannel errorChannel) {
-
-    ApplicationEventListeningMessageProducer producer =
-            new ApplicationEventListeningMessageProducer();
-    producer.setEventTypes(TcpConnectionEvent.class);
-    producer.setOutputChannel(messageChannel);
-    producer.setErrorChannel(errorChannel);
-    return producer;
-  }
-
-/*  @Override
-  public void publishEvent(ApplicationEvent event) {
-    ApplicationEventPublisher.super.publishEvent(event);
-  }
-
-  @Override
-  public void publishEvent(Object event) {
-    log.info("Event");
-  }*/
 }

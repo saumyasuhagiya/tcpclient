@@ -14,16 +14,29 @@ import lombok.extern.slf4j.Slf4j;
 @MessageEndpoint
 public class TcpDataReceiver {
 
-  @ServiceActivator(inputChannel = "messageChannel")
+  @ServiceActivator(inputChannel = "primaryMessageChannel")
   public void replyHandler(Message message) {
 
     String data = new String((byte[]) message.getPayload(), StandardCharsets.UTF_8);
 
     log.info(
-        "ConnectionId: {}, IP Address: {}, IP Hostname: {}, IP Port: {}",
+        "PRIMARY: ConnectionId: {}, IP Address: {}, IP Hostname: {}, IP Port: {}",
         message.getHeaders().get("ip_connectionId"),
         message.getHeaders().get("ip_address"),
         message.getHeaders().get("ip_hostname"), message.getHeaders().get("ip_tcp_remotePort"));
-    System.out.println(data);
+    log.info("{}", data);
+  }
+
+  @ServiceActivator(inputChannel = "secondaryMessageChannel")
+  public void replyHandlerSecondary(Message message) {
+
+    String data = new String((byte[]) message.getPayload(), StandardCharsets.UTF_8);
+
+    log.info(
+            "SECONDARY: ConnectionId: {}, IP Address: {}, IP Hostname: {}, IP Port: {}",
+            message.getHeaders().get("ip_connectionId"),
+            message.getHeaders().get("ip_address"),
+            message.getHeaders().get("ip_hostname"), message.getHeaders().get("ip_tcp_remotePort"));
+    log.info("{}", data);
   }
 }

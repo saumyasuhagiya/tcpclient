@@ -1,12 +1,9 @@
 package com.example.tcpclient.tcpclient.service;
 
-import lombok.SneakyThrows;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.ApplicationListener;
 import org.springframework.context.event.ContextRefreshedEvent;
 import org.springframework.integration.config.EnableIntegration;
-import org.springframework.integration.ip.tcp.TcpSendingMessageHandler;
 import org.springframework.integration.support.MessageBuilder;
 import org.springframework.messaging.Message;
 import org.springframework.messaging.MessageChannel;
@@ -17,21 +14,23 @@ import org.springframework.stereotype.Component;
 public class TcpMessageSender implements ApplicationListener<ContextRefreshedEvent> {
 
     @Autowired
-    TcpSendingMessageHandler tcpSendingMessageHandler;
+    MessageChannel primaryMessageChannel;
 
-    private final MessageChannel tcpClientChannel;
+    @Autowired
+    MessageChannel secondaryMessageChannel;
 
-    public TcpMessageSender(@Qualifier("messageChannel") MessageChannel messageChannel) {
-        this.tcpClientChannel = messageChannel;
-    }
 
-    @SneakyThrows
     @Override
     public void onApplicationEvent(ContextRefreshedEvent event) {
-        Thread.sleep(1000);
+        try {
+            Thread.sleep(1000);
+        } catch (InterruptedException e) {
+            throw new RuntimeException(e);
+        }
         String messagePayload = "Hello, TCP server!";
         Message<byte[]> message = MessageBuilder.withPayload(messagePayload.getBytes()).build();
-        tcpClientChannel.send(message);
+        primaryMessageChannel.send(message);
+        secondaryMessageChannel.send(message);
         System.out.println("Message sent to TCP server: " + messagePayload);
     }
 }
