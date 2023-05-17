@@ -1,6 +1,5 @@
 package com.example.tcpclient.tcpclient.helper;
 
-import com.example.tcpclient.tcpclient.service.TcpMessageSender;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.integration.support.MessageBuilder;
@@ -16,9 +15,6 @@ import org.springframework.stereotype.Component;
 public class SchedulerHelper {
 
     @Autowired
-    TcpMessageSender tcpMessageSender;
-
-    @Autowired
     MessageChannel primaryMessageChannel;
 
     @Autowired
@@ -32,11 +28,14 @@ public class SchedulerHelper {
         if(!activeConnectionMonitor.isPrimaryActive()) {
             log.error("Primary connection is not active. Trying to activate primary connection.");
             sendMessage(primaryMessageChannel);
-        } else if(!activeConnectionMonitor.isSecondaryActive()) {
+        } else {
+            log.info("Primary connection is active.");
+        }
+        if(!activeConnectionMonitor.isSecondaryActive()) {
             log.error("Secondary connection is not active. Trying to activate secondary connection.");
             sendMessage(secondaryMessageChannel);
         } else {
-            log.info("Both primary and secondary connections are active.");
+            log.info("Secondary connection is active.");
         }
     }
 

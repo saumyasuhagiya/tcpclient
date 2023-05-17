@@ -20,9 +20,11 @@ public class TcpDataReceiver {
         String data = new String((byte[]) message.getPayload(), StandardCharsets.UTF_8);
 
         if (message.getHeaders().containsKey("ip_tcp_remotePort")) {
-            if (message.getHeaders().get("ip_tcp_remotePort").toString().equals("8888")) {
+            if (message.getHeaders().get("ip_tcp_remotePort").toString().equals("8888")
+                    && ServerSelectionService.getInstance().getActiveServer().equals("primary")) {
                 log.info("Sending data from primary server to subscribers");
-            } else if (message.getHeaders().get("ip_tcp_remotePort").toString().equals("9999")) {
+            } else if (message.getHeaders().get("ip_tcp_remotePort").toString().equals("9999")
+                    && ServerSelectionService.getInstance().getActiveServer().equals("secondary")) {
                 log.info("Sending data from secondary server to subscribers");
             }
         }
