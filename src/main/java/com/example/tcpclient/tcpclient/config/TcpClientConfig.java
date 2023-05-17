@@ -10,7 +10,6 @@ import org.springframework.integration.ip.tcp.TcpReceivingChannelAdapter;
 import org.springframework.integration.ip.tcp.TcpSendingMessageHandler;
 import org.springframework.integration.ip.tcp.connection.AbstractClientConnectionFactory;
 import org.springframework.integration.scheduling.PollerMetadata;
-import org.springframework.integration.support.MessageBuilder;
 import org.springframework.messaging.MessageChannel;
 import org.springframework.messaging.PollableChannel;
 import org.springframework.scheduling.support.PeriodicTrigger;
@@ -58,7 +57,6 @@ public class TcpClientConfig {
     TcpSendingMessageHandler tcpSendingMessageHandler = new TcpSendingMessageHandler();
     tcpSendingMessageHandler.setConnectionFactory(connectionFactory);
     tcpSendingMessageHandler.setLoggingEnabled(true);
-
     return tcpSendingMessageHandler;
   }
 }

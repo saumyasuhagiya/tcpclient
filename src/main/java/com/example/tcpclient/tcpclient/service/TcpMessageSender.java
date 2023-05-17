@@ -29,6 +29,5 @@ public class TcpMessageSender implements ApplicationListener<ContextRefreshedEve
         Message<byte[]> message = MessageBuilder.withPayload(messagePayload.getBytes()).build();
         tcpClientChannel.send(message);
         System.out.println("Message sent to TCP server: " + messagePayload);
-        tcpSendingMessageHandler.handleMessage(message);
-    }
+    } 
 }
