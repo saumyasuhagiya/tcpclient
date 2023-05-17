@@ -22,11 +22,6 @@ import lombok.extern.slf4j.Slf4j;
 public class TcpClientConfig {
 
   @Bean
-  public PollableChannel responseChannel() {
-    return new QueueChannel();
-  }
-
-  @Bean
   public MessageChannel messageChannel() {
     return new DirectChannel();
   }
@@ -42,7 +37,7 @@ public class TcpClientConfig {
   public TcpReceivingChannelAdapter in(AbstractClientConnectionFactory connectionFactory) {
     TcpReceivingChannelAdapter adapter = new TcpReceivingChannelAdapter();
     adapter.setConnectionFactory(connectionFactory);
-    adapter.setOutputChannel(responseChannel());
+    adapter.setOutputChannel(messageChannel());
     return adapter;
   }
 
