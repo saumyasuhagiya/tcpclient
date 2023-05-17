@@ -24,6 +24,6 @@ public class TcpDataReceiver {
         message.getHeaders().get("ip_connectionId"),
         message.getHeaders().get("ip_address"),
         message.getHeaders().get("ip_hostname"), message.getHeaders().get("ip_tcp_remotePort"));
-    log.info(data);
+    System.out.println(data);
   }
 }

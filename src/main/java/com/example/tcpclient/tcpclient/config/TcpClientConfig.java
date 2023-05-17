@@ -1,5 +1,7 @@
 package com.example.tcpclient.tcpclient.config;
 
+import org.springframework.context.ApplicationEvent;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
@@ -22,11 +24,11 @@ import lombok.extern.slf4j.Slf4j;
 @ComponentScan
 @Configuration
 @Slf4j
-public class TcpClientConfig {
+public class TcpClientConfig{
 
   @Bean
   public MessageChannel messageChannel() {
-    return new DirectChannel();
+    return new QueueChannel();
   }
 
   @Bean(name = PollerMetadata.DEFAULT_POLLER)
@@ -71,4 +73,13 @@ public class TcpClientConfig {
     return producer;
   }
 
+/*  @Override
+  public void publishEvent(ApplicationEvent event) {
+    ApplicationEventPublisher.super.publishEvent(event);
+  }
+
+  @Override
+  public void publishEvent(Object event) {
+    log.info("Event");
+  }*/
 }
