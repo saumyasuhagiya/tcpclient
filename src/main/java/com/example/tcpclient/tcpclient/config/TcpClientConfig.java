@@ -28,7 +28,7 @@ public class TcpClientConfig{
 
   @Bean
   public MessageChannel messageChannel() {
-    return new QueueChannel();
+    return new DirectChannel();
   }
 
   @Bean(name = PollerMetadata.DEFAULT_POLLER)
