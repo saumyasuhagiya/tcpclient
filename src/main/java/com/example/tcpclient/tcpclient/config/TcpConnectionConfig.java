@@ -24,41 +24,45 @@ import org.springframework.messaging.MessageChannel;
 @Slf4j
 public class TcpConnectionConfig implements ApplicationEventPublisher {
 
-    //This is for testing purpose only. Actual server resides on external server.
-    private String tcpServerAddress = "localhost";
-
     @Autowired
     MessageChannel primaryMessageChannel;
-
     @Autowired
     MessageChannel secondaryMessageChannel;
 
+    //This is for testing purpose only. Actual server resides on external server.
+    private String tcpServerAddress = "localhost";
     private int tcpServerPort = 8888;
     private String tcpServerFailoverAddress = "localhost";
-
     private int tcpServerFailoverPort = 9999;
 
     @Bean
-    public AbstractClientConnectionFactory secondaryFCCF() {
+    public AbstractClientConnectionFactory primaryFCCF(TcpNetClientConnectionFactory primaryTcpNCCF) {
         List<AbstractClientConnectionFactory> tcpNetClientConnectionFactoryList = new ArrayList<>();
         tcpNetClientConnectionFactoryList.add(
-                getTcpNetClientConnectionFactory(tcpServerFailoverAddress, tcpServerFailoverPort));
-        tcpNetClientConnectionFactoryList.add(
-                getTcpNetClientConnectionFactory(tcpServerAddress, tcpServerPort));
+                primaryTcpNCCF);
 
         return getFailOverClientConnection(tcpNetClientConnectionFactoryList);
     }
 
     @Bean
-    public AbstractClientConnectionFactory primaryFCCF() {
+    public AbstractClientConnectionFactory secondaryFCCF(TcpNetClientConnectionFactory secondaryTcpNCCF) {
         List<AbstractClientConnectionFactory> tcpNetClientConnectionFactoryList = new ArrayList<>();
         tcpNetClientConnectionFactoryList.add(
-                getTcpNetClientConnectionFactory(tcpServerAddress, tcpServerPort));
-        tcpNetClientConnectionFactoryList.add(
-                getTcpNetClientConnectionFactory(tcpServerFailoverAddress, tcpServerFailoverPort));
+                secondaryTcpNCCF);
 
         return getFailOverClientConnection(tcpNetClientConnectionFactoryList);
     }
+
+    @Bean
+    public TcpNetClientConnectionFactory primaryTcpNCCF() {
+        return getTcpNetClientConnectionFactory(tcpServerAddress, tcpServerPort);
+    }
+
+    @Bean
+    public TcpNetClientConnectionFactory secondaryTcpNCCF() {
+        return getTcpNetClientConnectionFactory(tcpServerFailoverAddress, tcpServerFailoverPort);
+    }
+
 
     private TcpNetClientConnectionFactory getTcpNetClientConnectionFactory(String address, int port) {
         TcpNetClientConnectionFactory tcpNetClientConnectionFactory =

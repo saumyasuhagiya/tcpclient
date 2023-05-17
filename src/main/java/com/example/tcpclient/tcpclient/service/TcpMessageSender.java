@@ -1,5 +1,6 @@
 package com.example.tcpclient.tcpclient.service;
 
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationListener;
 import org.springframework.context.event.ContextRefreshedEvent;
@@ -9,9 +10,12 @@ import org.springframework.messaging.Message;
 import org.springframework.messaging.MessageChannel;
 import org.springframework.stereotype.Component;
 
+import java.io.UncheckedIOException;
+
 @EnableIntegration
 @Component
-public class TcpMessageSender implements ApplicationListener<ContextRefreshedEvent> {
+@Slf4j
+public class TcpMessageSender {
 
     @Autowired
     MessageChannel primaryMessageChannel;
@@ -20,17 +24,18 @@ public class TcpMessageSender implements ApplicationListener<ContextRefreshedEve
     MessageChannel secondaryMessageChannel;
 
 
-    @Override
+    /*@Override*/
     public void onApplicationEvent(ContextRefreshedEvent event) {
         try {
             Thread.sleep(1000);
-        } catch (InterruptedException e) {
-            throw new RuntimeException(e);
+            String messagePayload = "Hello, TCP server!";
+            Message<byte[]> message = MessageBuilder.withPayload(messagePayload.getBytes()).build();
+            primaryMessageChannel.send(message);
+            Thread.sleep(1000);
+            secondaryMessageChannel.send(message);
+            log.info("Message sent to TCP server: " + messagePayload);
+        } catch (Exception e) {
+            log.error("Error sending message to TCP server: " + e.getMessage());
         }
-        String messagePayload = "Hello, TCP server!";
-        Message<byte[]> message = MessageBuilder.withPayload(messagePayload.getBytes()).build();
-        primaryMessageChannel.send(message);
-        secondaryMessageChannel.send(message);
-        System.out.println("Message sent to TCP server: " + messagePayload);
     }
 }
