@@ -20,10 +20,10 @@ public class TcpDataReceiver {
     String data = new String((byte[]) message.getPayload(), StandardCharsets.UTF_8);
 
     log.info(
-        "ConnectionId: {}, IP Address: {}, IP Hostname: {}",
+        "ConnectionId: {}, IP Address: {}, IP Hostname: {}, IP Port: {}",
         message.getHeaders().get("ip_connectionId"),
         message.getHeaders().get("ip_address"),
-        message.getHeaders().get("ip_hostname"));
+        message.getHeaders().get("ip_hostname"), message.getHeaders().get("ip_tcp_remotePort"));
     log.info(data);
   }
 }

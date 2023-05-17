@@ -1,26 +1,19 @@
 package com.example.tcpclient.tcpclient.service;
 
-import com.example.tcpclient.tcpclient.config.TcpConnectionConfig;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationEvent;
 import org.springframework.context.ApplicationEventPublisher;
-import org.springframework.context.ApplicationListener;
-import org.springframework.context.event.ContextRefreshedEvent;
 import org.springframework.integration.config.EnableIntegration;
-import org.springframework.integration.ip.tcp.TcpSendingMessageHandler;
-import org.springframework.integration.ip.tcp.connection.TcpConnectionCloseEvent;
-import org.springframework.integration.ip.tcp.connection.TcpConnectionEvent;
-import org.springframework.integration.ip.tcp.connection.TcpConnectionOpenEvent;
-import org.springframework.integration.support.MessageBuilder;
-import org.springframework.messaging.Message;
-import org.springframework.messaging.MessageChannel;
+import org.springframework.integration.ip.tcp.connection.*;
 import org.springframework.stereotype.Component;
 
 @EnableIntegration
 @Component
-public class TcpConnectionListner implements ApplicationEventPublisher {
+public class TcpConnectionListener implements ApplicationEventPublisher {
 
+    @Autowired
+    ApplicationContext applicationContext;
 
     @Override
     public void publishEvent(ApplicationEvent event) {
@@ -31,7 +24,11 @@ public class TcpConnectionListner implements ApplicationEventPublisher {
         if (event.getClass().getName().equals(TcpConnectionCloseEvent.class.getCanonicalName())) {
             System.out.println("Connection Closed");
         }
+        if (event.getClass().getName().equals(TcpConnectionExceptionEvent.class.getCanonicalName())) {
+            System.out.println("Connection Exception");
+        }
         ApplicationEventPublisher.super.publishEvent(event);
+
     }
 
     @Override

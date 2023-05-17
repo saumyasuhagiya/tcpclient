@@ -3,7 +3,7 @@ package com.example.tcpclient.tcpclient.config;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.example.tcpclient.tcpclient.service.TcpConnectionListner;
+import com.example.tcpclient.tcpclient.service.TcpConnectionListener;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -17,41 +17,44 @@ import org.springframework.integration.ip.tcp.serializer.TcpCodecs;
 @Configuration
 public class TcpConnectionConfig {
 
-  //This is for testing purpose only. Actual server resides on external server.
-  private String tcpServerAddress = "localhost";
+    //This is for testing purpose only. Actual server resides on external server.
+    private String tcpServerAddress = "localhost";
 
-  private int tcpServerPort = 8888;
+    private int tcpServerPort = 8888;
+    private String tcpServerFailoverAddress = "localhost";
 
-  @Autowired
-  TcpConnectionListner tcpConnectionListner;
+    private int tcpServerFailoverPort = 9999;
 
-  @Bean
-  public AbstractClientConnectionFactory clientConnectionFactory() {
-    List<AbstractClientConnectionFactory> tcpNetClientConnectionFactoryList = new ArrayList<>();
-    /*tcpNetClientConnectionFactoryList.add(
-    getTcpNetClientConnectionFactory(tcpServerFailoverAddress, tcpServerFailoverPort));*/
-    tcpNetClientConnectionFactoryList.add(
-        getTcpNetClientConnectionFactory(tcpServerAddress, tcpServerPort));
+    @Autowired
+    TcpConnectionListener tcpConnectionListener;
 
-    return getFailOverClientConnection(tcpNetClientConnectionFactoryList);
-  }
+    @Bean
+    public AbstractClientConnectionFactory clientConnectionFactory() {
+        List<AbstractClientConnectionFactory> tcpNetClientConnectionFactoryList = new ArrayList<>();
+        tcpNetClientConnectionFactoryList.add(
+                getTcpNetClientConnectionFactory(tcpServerFailoverAddress, tcpServerFailoverPort));
+        tcpNetClientConnectionFactoryList.add(
+                getTcpNetClientConnectionFactory(tcpServerAddress, tcpServerPort));
 
-  private TcpNetClientConnectionFactory getTcpNetClientConnectionFactory(String address, int port) {
-    TcpNetClientConnectionFactory tcpNetClientConnectionFactory =
-        new TcpNetClientConnectionFactory(address, port);
-    tcpNetClientConnectionFactory.setTcpSocketFactorySupport(new DefaultTcpNetSocketFactorySupport());
-    tcpNetClientConnectionFactory.setSoKeepAlive(true);
-    tcpNetClientConnectionFactory.setSingleUse(false);
-    tcpNetClientConnectionFactory.setSoTcpNoDelay(true);
-    tcpNetClientConnectionFactory.setDeserializer(TcpCodecs.lengthHeader1());
-    tcpNetClientConnectionFactory.setApplicationEventPublisher(tcpConnectionListner);
-    return tcpNetClientConnectionFactory;
-  }
+        return getFailOverClientConnection(tcpNetClientConnectionFactoryList);
+    }
 
-  private static FailoverClientConnectionFactory getFailOverClientConnection(
-      List<AbstractClientConnectionFactory> tcpNetClientConnectionFactoryList) {
-    var failoverClientConnectionFactory =
-        new FailoverClientConnectionFactory(tcpNetClientConnectionFactoryList);
-    return failoverClientConnectionFactory;
-  }
+    private TcpNetClientConnectionFactory getTcpNetClientConnectionFactory(String address, int port) {
+        TcpNetClientConnectionFactory tcpNetClientConnectionFactory =
+                new TcpNetClientConnectionFactory(address, port);
+        tcpNetClientConnectionFactory.setTcpSocketFactorySupport(new DefaultTcpNetSocketFactorySupport());
+        tcpNetClientConnectionFactory.setSoKeepAlive(true);
+        tcpNetClientConnectionFactory.setSingleUse(false);
+        tcpNetClientConnectionFactory.setSoTcpNoDelay(true);
+        tcpNetClientConnectionFactory.setDeserializer(TcpCodecs.lengthHeader1());
+        tcpNetClientConnectionFactory.setApplicationEventPublisher(tcpConnectionListener);
+        return tcpNetClientConnectionFactory;
+    }
+
+    private static FailoverClientConnectionFactory getFailOverClientConnection(
+            List<AbstractClientConnectionFactory> tcpNetClientConnectionFactoryList) {
+        var failoverClientConnectionFactory =
+                new FailoverClientConnectionFactory(tcpNetClientConnectionFactoryList);
+        return failoverClientConnectionFactory;
+    }
 }
