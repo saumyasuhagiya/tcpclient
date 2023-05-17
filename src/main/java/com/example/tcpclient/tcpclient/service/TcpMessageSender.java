@@ -1,5 +1,6 @@
 package com.example.tcpclient.tcpclient.service;
 
+import lombok.SneakyThrows;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.ApplicationListener;
@@ -17,18 +18,20 @@ public class TcpMessageSender implements ApplicationListener<ContextRefreshedEve
 
     @Autowired
     TcpSendingMessageHandler tcpSendingMessageHandler;
-    
+
     private final MessageChannel tcpClientChannel;
 
     public TcpMessageSender(@Qualifier("messageChannel") MessageChannel messageChannel) {
         this.tcpClientChannel = messageChannel;
     }
 
+    @SneakyThrows
     @Override
     public void onApplicationEvent(ContextRefreshedEvent event) {
+        Thread.sleep(1000);
         String messagePayload = "Hello, TCP server!";
         Message<byte[]> message = MessageBuilder.withPayload(messagePayload.getBytes()).build();
         tcpClientChannel.send(message);
         System.out.println("Message sent to TCP server: " + messagePayload);
-    } 
+    }
 }
