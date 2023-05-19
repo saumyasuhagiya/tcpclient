@@ -26,7 +26,6 @@ public class TcpClientConfig{
   @Autowired
   ActiveConnectionListener activeConnectionListener;
 
-
   DirectChannel primaryMessageChannel;
   @Bean
   public MessageChannel primaryMessageChannel() {

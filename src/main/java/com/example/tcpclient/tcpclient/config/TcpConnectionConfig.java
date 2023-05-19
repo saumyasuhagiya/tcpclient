@@ -29,11 +29,8 @@ public class TcpConnectionConfig implements ApplicationEventPublisher {
     @Autowired
     MessageChannel secondaryMessageChannel;
 
-    //This is for testing purpose only. Actual server resides on external server.
-    private String tcpServerAddress = "localhost";
-    private int tcpServerPort = 8888;
-    private String tcpServerFailoverAddress = "localhost";
-    private int tcpServerFailoverPort = 9999;
+    @Autowired
+    ServerConfig serverConfig;
 
     @Bean
     public AbstractClientConnectionFactory primaryFCCF(TcpNetClientConnectionFactory primaryTcpNCCF) {
@@ -55,12 +52,14 @@ public class TcpConnectionConfig implements ApplicationEventPublisher {
 
     @Bean
     public TcpNetClientConnectionFactory primaryTcpNCCF() {
-        return getTcpNetClientConnectionFactory(tcpServerAddress, tcpServerPort);
+        return getTcpNetClientConnectionFactory(serverConfig.getServerMap().get("primary").getIp(),
+                serverConfig.getServerMap().get("primary").getPort());
     }
 
     @Bean
     public TcpNetClientConnectionFactory secondaryTcpNCCF() {
-        return getTcpNetClientConnectionFactory(tcpServerFailoverAddress, tcpServerFailoverPort);
+        return getTcpNetClientConnectionFactory(serverConfig.getServerMap().get("secondary").getIp(),
+                serverConfig.getServerMap().get("secondary").getPort());
     }
 
 

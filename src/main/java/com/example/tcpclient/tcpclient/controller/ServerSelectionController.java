@@ -9,7 +9,6 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 public class ServerSelectionController {
 
-
     @PostMapping("/activeServer")
     public String setActiveServer(@RequestBody String serverName) {
         ServerSelectionService.getInstance().setActiveServer(serverName);
