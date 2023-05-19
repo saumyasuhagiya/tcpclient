@@ -25,19 +25,17 @@ public class ActiveConnectionManager {
     @Autowired
     ActiveConnectionListener activeConnectionListener;
 
-    @Scheduled(fixedRate = 10000)
+    @Scheduled(fixedRate = 5000)
     public void checkConnectionHealth() {
         if(!activeConnectionListener.isPrimaryActive()) {
             ServerSelectionService.getInstance().setActiveServer("secondary");
-            log.warn("Primary connection is not active. Falling back to Secondary. Trying to activate primary connection.");
-            sendMessage(primaryMessageChannel);
+            log.warn("Primary connection is not active. Falling back to Secondary.");
         } else {
             log.info("Primary connection is active.");
         }
         if(!activeConnectionListener.isSecondaryActive()) {
             ServerSelectionService.getInstance().setActiveServer("primary");
-            log.warn("Secondary connection is not active. Falling back to Primary. Trying to activate secondary connection.");
-            sendMessage(secondaryMessageChannel);
+            log.warn("Secondary connection is not active. Falling back to Primary.");
         } else {
             log.info("Secondary connection is active.");
         }
@@ -60,6 +58,22 @@ public class ActiveConnectionManager {
         if(!ServerSelectionService.getInstance().checkIfRunningDefaultServer() && activeConnectionListener.isPrimaryActive()) {
             log.error("Default Server is Active now. Falling back to default server stream.");
             ServerSelectionService.getInstance().setActiveServer(ServerSelectionService.getInstance().getDefaultServer());
+        }
+    }
+
+    @Scheduled(fixedRate = 60000)
+    public void retryToActivateDeadServers() {
+        if(!activeConnectionListener.isPrimaryActive()) {
+            log.warn("Primary connection is not active. Trying to activate primary connection.");
+            sendMessage(primaryMessageChannel);
+        } else {
+            log.info("Primary connection is active.");
+        }
+        if(!activeConnectionListener.isSecondaryActive()) {
+            log.warn("Secondary connection is not active. Trying to activate secondary connection.");
+            sendMessage(secondaryMessageChannel);
+        } else {
+            log.info("Secondary connection is active.");
         }
     }
 }
