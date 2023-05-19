@@ -9,6 +9,8 @@ public class ServerSelectionService {
 
     private String activeServer = "primary";
 
+    private String defaultServer = "primary";
+
     private ServerSelectionService() {
 
     }
@@ -24,7 +26,19 @@ public class ServerSelectionService {
         return activeServer;
     }
 
+    public String getDefaultServer() {
+        return defaultServer;
+    }
+
     public void setActiveServer(String serverName) {
         activeServer = serverName;
+    }
+
+    public void setDefaultServer(String serverName) {
+        defaultServer = serverName;
+    }
+
+    public boolean checkIfRunningDefaultServer() {
+        return activeServer.equals(defaultServer);
     }
 }

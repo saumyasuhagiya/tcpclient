@@ -1,6 +1,5 @@
 package com.example.tcpclient.tcpclient.helper;
 
-import org.springframework.context.annotation.Bean;
 import org.springframework.messaging.MessageChannel;
 import org.springframework.messaging.support.ChannelInterceptor;
 import org.springframework.stereotype.Component;
@@ -8,11 +7,11 @@ import org.springframework.stereotype.Component;
 import static com.example.tcpclient.tcpclient.Constant.IP_TCP_REMOTE_PORT;
 
 @Component
-public class ActiveConnectionMonitor implements ChannelInterceptor {
+public class ActiveConnectionListener implements ChannelInterceptor {
     private long lastMessageReceivedPrimary;
     private long lastMessageReceivedSecondary;
 
-    public ActiveConnectionMonitor() {
+    public ActiveConnectionListener() {
         lastMessageReceivedPrimary = 0;
         lastMessageReceivedSecondary = 0;
     }

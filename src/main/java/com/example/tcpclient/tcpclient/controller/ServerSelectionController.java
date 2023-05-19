@@ -10,14 +10,25 @@ import org.springframework.web.bind.annotation.RestController;
 public class ServerSelectionController {
 
 
-    @PostMapping("/server")
+    @PostMapping("/activeServer")
     public String setActiveServer(@RequestBody String serverName) {
         ServerSelectionService.getInstance().setActiveServer(serverName);
         return serverName;
     }
 
-    @GetMapping("/server")
+    @GetMapping("/activeServer")
     public String getActiveServer() {
         return ServerSelectionService.getInstance().getActiveServer();
+    }
+
+    @GetMapping("/defaultServer")
+    public String getDefaultServer() {
+        return ServerSelectionService.getInstance().getDefaultServer();
+    }
+
+    @PostMapping("/defaultServer")
+    public String setDefaultServer(@RequestBody String serverName) {
+        ServerSelectionService.getInstance().setDefaultServer(serverName);
+        return serverName;
     }
 }
